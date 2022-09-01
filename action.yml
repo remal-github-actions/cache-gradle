@@ -1,0 +1,28 @@
+name: Cache Gradle
+description: Improved cache for Gradle
+outputs:
+  gradle-wrapper-cache-hit:
+    description: "A boolean value to indicate an exact match was found for Gradle wrapper cache"
+    value: ${{steps.gradle-wrapper.outputs.cache-hit}}
+  gradle-caches-cache-hit:
+    description: "A boolean value to indicate an exact match was found for Gradle caches cache"
+    value: ${{steps.gradle-caches.outputs.cache-hit}}
+runs:
+  using: composite
+  steps:
+  - name: Cache Gradle wrapper
+    id: gradle-wrapper
+    uses: actions/cache@v3
+    with:
+      key: ${{runner.os}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties')}}-v1
+      path: |
+        ${{env.GRADLE_USER_HOME || '~/.gradle'}}/wrapper/dists
+  - name: Cache Gradle caches
+    id: gradle-caches
+    uses: actions/cache@v3
+    with:
+      key: ${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties')}}-v1
+      path: |
+        ${{env.GRADLE_USER_HOME || '~/.gradle'}}/caches
+        ${{env.GRADLE_USER_HOME || '~/.gradle'}}/jdks
+        ${{env.GRADLE_USER_HOME || '~/.gradle'}}/notifications
