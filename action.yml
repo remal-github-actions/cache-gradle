@@ -26,3 +26,6 @@ runs:
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/caches
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/jdks
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/notifications
+  - name: Cleanup Gradle wrapper cache
+    if: ${{steps.gradle-wrapper.outputs.cache-hit != 'true'}}
+    uses: remal-github-actions/cache-gradle-cleanup-wrapper@v1
