@@ -77,6 +77,6 @@ runs:
         v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{github.base_ref || github.ref}}-${{github.sha}}-${{github.run_id}}-
         v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{github.base_ref || github.ref}}-${{github.sha}}-
         v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{github.base_ref || github.ref}}-
-        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{fromJSON(steps.repository-info.outputs.result).defaultBranch}}-
+        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-refs/heads/${{fromJSON(steps.repository-info.outputs.result).defaultBranch}}-
       path: |
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/.build-cache
