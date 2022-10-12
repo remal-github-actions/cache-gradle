@@ -21,7 +21,7 @@ runs:
     id: gradle-caches
     uses: actions/cache@v3
     with:
-      key: ${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties')}}-v1
+      key: ${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile')}}-v1
       path: |
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/caches
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/jdks
