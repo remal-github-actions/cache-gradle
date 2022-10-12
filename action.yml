@@ -65,8 +65,9 @@ runs:
       echo "            println directory" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
       echo "        }" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
       echo "    }" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
-      echo "    println 123" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
+      echo "    println 'settingsEvaluated'" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
       echo "}" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
+      echo "println 'build-cache.gradle'" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
       cat "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
   - name: Retrieve repository info
     id: repository-info
