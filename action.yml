@@ -61,12 +61,9 @@ runs:
       echo "    settings.buildCache {" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
       echo "        local {" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
       echo "            directory = new File('${{env.GRADLE_USER_HOME || '~/.gradle'}}/.build-cache'.replaceFirst('^~/', System.getProperty('user.home') + '/'))" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
-      echo "            println directory" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
       echo "        }" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
       echo "    }" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
       echo "}" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
-      echo ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
-      cat ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
   - name: Retrieve repository info
     id: repository-info
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
