@@ -1,5 +1,23 @@
 name: Cache Gradle
 description: Improved cache for Gradle
+
+inputs:
+  cache-version:
+    required: true
+    default: '1'
+    description: "Cache version. Change it to reset cache."
+  build-cache-enabled:
+    required: true
+    default: 'true'
+    description: "Set to 'false' to disable Gradle Build Cache"
+  build-cache-for-branches-only:
+    required: true
+    default: 'false'
+    description: "Set to 'true' to disable Gradle Build Cache for tags"
+  default-branch:
+    required: false
+    description: "Repository default branch. Will be retrieved from GitHub if not set."
+
 outputs:
   gradle-wrapper-cache-hit:
     description: "A boolean value to indicate an exact match was found for Gradle wrapper cache"
@@ -7,6 +25,7 @@ outputs:
   gradle-caches-cache-hit:
     description: "A boolean value to indicate an exact match was found for Gradle caches cache"
     value: ${{steps.gradle-caches.outputs.cache-hit}}
+
 runs:
   using: composite
   steps:
@@ -14,18 +33,55 @@ runs:
     id: gradle-wrapper
     uses: actions/cache@v3
     with:
-      key: ${{runner.os}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties')}}-v1
+      key: v${{inputs.cache-version}}-${{runner.os}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties')}}
       path: |
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/wrapper/dists
   - name: Cache Gradle caches
     id: gradle-caches
     uses: actions/cache@v3
     with:
-      key: ${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile')}}-v1
+      key: v${{inputs.cache-version}}-${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile')}}
       path: |
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/caches
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/jdks
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/notifications
   - name: Cleanup Gradle wrapper cache
-    if: ${{steps.gradle-wrapper.outputs.cache-hit != 'true'}}
+    if: ${{steps.gradle-wrapper.outputs.cache-hit != 'true' || steps.gradle-caches.outputs.cache-hit != 'true'}}
     uses: remal-github-actions/cache-gradle-cleanup-wrapper@v1
+
+  - name: Setup Gradle Build Cache
+    if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
+    shell: bash
+    run: |
+      mkdir -p "${{env.GRADLE_USER_HOME || '~/.gradle'}}"
+      echo "" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/gradle.properties"
+      echo "org.gradle.caching = true" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/gradle.properties"
+      mkdir -p "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d"
+      echo "settingsEvaluated {" > "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
+      echo "    buildCache {" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
+      echo "        local {" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
+      echo "            directory = new File('${{env.GRADLE_USER_HOME || '~/.gradle'}}/.build-cache')" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
+      echo "        }" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
+      echo "    }" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
+      echo "}" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
+  - name: Get repository default branch
+    id: default-branch
+    if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
+    shell: bash
+    run: |
+      echo 'test'
+  - name: Retrieve repository info
+    id: repository-info
+    if: ${{!steps.default-branch.outputs.value && inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
+    uses: remal-github-actions/retrieve-repository-info@v1
+  - name: Cache Gradle Build Cache
+    if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
+    uses: actions/cache@v3
+    with:
+      key: v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{github.base_ref || github.ref}}-${{github.sha}}-${{github.run_id}}
+      restore-keys: |
+        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{github.base_ref || github.ref}}-${{github.sha}}-
+        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{github.base_ref || github.ref}}-
+        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{steps.default-branch.outputs.value || fromJSON(steps.repository-info.outputs.result).defaultBranch}}-
+      path: |
+        ${{env.GRADLE_USER_HOME || '~/.gradle'}}/.build-cache
