@@ -68,7 +68,7 @@ runs:
       echo "    println 'settingsEvaluated'" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
       echo "}" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
       echo "println 'build-cache.gradle'" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
-      cat "~/.gradle/init.d/build-cache.gradle"
+      cat "$HOME/.gradle/init.d/build-cache.gradle"
   - name: Retrieve repository info
     id: repository-info
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
