@@ -60,7 +60,7 @@ runs:
       echo "gradle.settingsEvaluated { settings ->" > ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
       echo "    settings.buildCache {" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
       echo "        local {" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
-      echo "            directory = new File('${{env.GRADLE_USER_HOME || '~/.gradle'}}/.build-cache'.replaceFirst('^~/', System.getProperty('user.home')))" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
+      echo "            directory = new File('${{env.GRADLE_USER_HOME || '~/.gradle'}}/.build-cache'.replaceFirst('^~/', System.getProperty('user.home') + '/'))" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
       echo "            println directory" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
       echo "        }" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
       echo "    }" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
