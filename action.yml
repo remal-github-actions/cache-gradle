@@ -56,6 +56,8 @@ runs:
       mkdir -p "${{env.GRADLE_USER_HOME || '~/.gradle'}}"
       echo "" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/gradle.properties"
       echo "org.gradle.caching = true" >> "${{env.GRADLE_USER_HOME || '~/.gradle'}}/gradle.properties"
+      echo ~/.gradle/gradle.properties
+      echo "~/.gradle/gradle.properties"
       cat "~/.gradle/gradle.properties"
       mkdir -p "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d"
       echo "settingsEvaluated {" > "${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle"
