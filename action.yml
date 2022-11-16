@@ -72,11 +72,14 @@ runs:
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
     uses: actions/cache@v3
     with:
-      key: v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{(github.base_ref && format('refs/heads/{0}', github.base_ref)) || github.ref}}-${{github.sha}}-${{github.run_id}}-${{github.run_attempt}}
+      key: v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{github.ref}}-${{github.sha}}-${{github.run_id}}-${{github.run_attempt}}
       restore-keys: |
-        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{(github.base_ref && format('refs/heads/{0}', github.base_ref)) || github.ref}}-${{github.sha}}-${{github.run_id}}-
-        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{(github.base_ref && format('refs/heads/{0}', github.base_ref)) || github.ref}}-${{github.sha}}-
-        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{(github.base_ref && format('refs/heads/{0}', github.base_ref)) || github.ref}}-
+        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{github.ref}}-${{github.sha}}-${{github.run_id}}-
+        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{github.ref}}-${{github.sha}}-
+        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{github.ref}}-
+        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{format('refs/heads/{0}', github.base_ref)}}-${{github.sha}}-${{github.run_id}}-
+        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{format('refs/heads/{0}', github.base_ref)}}-${{github.sha}}-
+        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-${{format('refs/heads/{0}', github.base_ref)}}-
         v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{github.job}}-${{strategy.job-index || '0'}}-refs/heads/${{fromJSON(steps.repository-info.outputs.result).defaultBranch}}-
       path: |
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/.build-cache
