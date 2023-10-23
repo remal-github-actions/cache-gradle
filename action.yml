@@ -17,6 +17,10 @@ inputs:
   default-branch:
     required: false
     description: "Repository default branch. Will be retrieved from GitHub if not set."
+  lookup-only:
+    required: true
+    default: 'false'
+    description: "If true, only checks if cache entry exists and skips download. Does not change save cache behavior."
 
 outputs:
   gradle-wrapper-cache-hit:
