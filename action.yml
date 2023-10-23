@@ -37,6 +37,7 @@ runs:
     id: gradle-wrapper
     uses: actions/cache@v3
     with:
+      lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}-${{runner.os}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties')}}
       path: |
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/wrapper/dists
@@ -44,6 +45,7 @@ runs:
     id: gradle-caches
     uses: actions/cache@v3
     with:
+      lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}-${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}
       path: |
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/caches
@@ -76,6 +78,7 @@ runs:
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch') && !github.base_ref}}
     uses: actions/cache@v3
     with:
+      lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{strategy.job-index||'0'}}-${{github.ref}}-${{github.sha}}-${{github.run_id}}-${{github.run_attempt}}
       restore-keys: |
         v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{strategy.job-index||'0'}}-${{github.ref}}-${{github.sha}}-${{github.run_id}}-
@@ -88,6 +91,7 @@ runs:
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch') && github.base_ref}}
     uses: actions/cache@v3
     with:
+      lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{strategy.job-index||'0'}}-${{github.ref}}-${{github.sha}}-${{github.run_id}}-${{github.run_attempt}}
       restore-keys: |
         v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{strategy.job-index||'0'}}-${{github.ref}}-${{github.sha}}-${{github.run_id}}-
