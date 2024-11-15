@@ -1,0 +1,21 @@
+$schema: https://raw.githubusercontent.com/remal-github-actions/sync-with-template/main/local-transformations.schema.json
+
+repositories:
+- remal-github-actions/cache-gradle
+
+transformations:
+- name: .github/sync-with-template.yml
+  format: yaml
+  includes:
+  - .github/sync-with-template.yml
+  script: |
+    content.excludes = content.excludes ?? []
+    ;[
+      '.github/workflows/release-drafter.yml',
+      '.github/release-drafter.yml',
+    ].forEach(path => {
+      if (!content.excludes.includes(path)) {
+        content.excludes.push(path)
+      }
+    })
+    return content
