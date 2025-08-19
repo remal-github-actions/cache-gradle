@@ -16,7 +16,13 @@ includes:
 - .yarn*
 excludes:
 - .github/workflows/template-cleanup.*
+- .github/workflows/*-template-cleanup.*
+- .github/workflows/template-*-cleanup.*
+- .github/workflows/*-template-*-cleanup.*
 - .github/template-cleanup/**
+- .github/*-template-cleanup/**
+- .github/template-*-cleanup/**
+- .github/*-template-*-cleanup/**
 - .github/workflows/release-drafter.yml
 - .github/release-drafter.yml
 modifiable-sections-exclusions:
