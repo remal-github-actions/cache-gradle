@@ -33,6 +33,12 @@ outputs:
 runs:
   using: composite
   steps:
+  - name: Set environment variables
+    shell: bash
+    run: |
+      GRADLE_USER_HOME_ACTUAL=${{env.GRADLE_USER_HOME || '~/.gradle'}}
+      echo "GRADLE_USER_HOME_ACTUAL=$GRADLE_USER_HOME_ACTUAL" >> $GITHUB_ENV
+
   - name: Cache Gradle wrapper
     id: gradle-wrapper
     uses: actions/cache@v4
@@ -40,7 +46,7 @@ runs:
       lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}-${{runner.os}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties')}}
       path: |
-        ${{env.GRADLE_USER_HOME || '~/.gradle'}}/wrapper/dists
+        ${{GRADLE_USER_HOME_ACTUAL}}/wrapper/dists
   - name: Cache Gradle caches
     id: gradle-caches
     uses: actions/cache@v4
@@ -48,9 +54,9 @@ runs:
       lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}-${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}
       path: |
-        ${{env.GRADLE_USER_HOME || '~/.gradle'}}/caches
-        ${{env.GRADLE_USER_HOME || '~/.gradle'}}/jdks
-        ${{env.GRADLE_USER_HOME || '~/.gradle'}}/notifications
+        ${{GRADLE_USER_HOME_ACTUAL}}/caches
+        ${{GRADLE_USER_HOME_ACTUAL}}/jdks
+        ${{GRADLE_USER_HOME_ACTUAL}}/notifications
   - name: Cleanup Gradle wrapper cache
     if: ${{steps.gradle-wrapper.outputs.cache-hit != 'true' || steps.gradle-caches.outputs.cache-hit != 'true'}}
     uses: remal-github-actions/cache-gradle-cleanup-wrapper@v1
@@ -59,17 +65,22 @@ runs:
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
     shell: bash
     run: |
-      mkdir -p ${{env.GRADLE_USER_HOME || '~/.gradle'}}
-      echo "" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/gradle.properties
-      echo "org.gradle.caching = true" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/gradle.properties
-      mkdir -p ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d
-      echo "gradle.settingsEvaluated { settings ->" > ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
-      echo "    settings.buildCache {" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
-      echo "        local {" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
-      echo "            directory = new File('${{env.GRADLE_USER_HOME || '~/.gradle'}}/.build-cache'.replaceFirst('^~/', System.getProperty('user.home') + '/'))" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
-      echo "        }" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
-      echo "    }" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
-      echo "}" >> ${{env.GRADLE_USER_HOME || '~/.gradle'}}/init.d/build-cache.gradle
+      mkdir -p ${{GRADLE_USER_HOME_ACTUAL}}
+      echo "" >> ${{GRADLE_USER_HOME_ACTUAL}}/gradle.properties
+      echo "org.gradle.caching = true" >> ${{GRADLE_USER_HOME_ACTUAL}}/gradle.properties
+
+      mkdir -p ${{GRADLE_USER_HOME_ACTUAL}}/init.d
+      cat <<EOF > ${{GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
+      gradle.settingsEvaluated {
+        buildCache {
+          local {
+            directory = new File('${{GRADLE_USER_HOME_ACTUAL}}/.build-cache')
+          }
+        }
+      }
+      EOF
+      echo ${{GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
+      cat ${{GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
 
   - name: Retrieve repository info
     id: repository-info
@@ -90,4 +101,4 @@ runs:
         v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{strategy.job-index||'0'}}-${{github.ref}}-
         v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{strategy.job-index||'0'}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.default-branch}}-
       path: |
-        ${{env.GRADLE_USER_HOME || '~/.gradle'}}/.build-cache
+        ${{GRADLE_USER_HOME_ACTUAL}}/.build-cache
