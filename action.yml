@@ -71,8 +71,8 @@ runs:
 
       mkdir -p ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d
       cat <<EOF > ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
-      gradle.settingsEvaluated {
-        buildCache {
+      gradle.settingsEvaluated { settings ->
+        settings.buildCache {
           local {
             directory = new File('${{env.GRADLE_USER_HOME_ACTUAL}}/.build-cache')
           }
