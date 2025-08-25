@@ -30,6 +30,10 @@ outputs:
     description: "A boolean value to indicate an exact match was found for Gradle caches cache"
     value: ${{steps.gradle-caches.outputs.cache-hit}}
 
+defaults:
+  run:
+    shell: bash
+
 runs:
   using: composite
   steps:
