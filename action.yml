@@ -78,7 +78,7 @@ runs:
       REPO_JSON=$(curl -s "${{github.api_url}}/repos/${{github.repository}}" -H "Authorization: token ${{github.token}}")
       DEFAULT_BRANCH=$(echo $REPO_JSON | jq -r '.default_branch')
       echo "Default branch: $DEFAULT_BRANCH"
-      echo "::set-output name=defaultBranch::$DEFAULT_BRANCH"
+      echo "default-branch=$DEFAULT_BRANCH" >> $GITHUB_OUTPUT
   - name: Cache Gradle Build Cache for branch
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
     uses: actions/cache@v4
@@ -88,6 +88,6 @@ runs:
       restore-keys: |
         v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{strategy.job-index||'0'}}-${{github.ref}}-${{github.sha}}-
         v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{strategy.job-index||'0'}}-${{github.ref}}-
-        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{strategy.job-index||'0'}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.defaultBranch}}-
+        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{strategy.job-index||'0'}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.default-branch}}-
       path: |
         ${{env.GRADLE_USER_HOME || '~/.gradle'}}/.build-cache
