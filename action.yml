@@ -30,10 +30,6 @@ outputs:
     description: "A boolean value to indicate an exact match was found for Gradle caches cache"
     value: ${{steps.gradle-caches.outputs.cache-hit}}
 
-defaults:
-  run:
-    shell: bash
-
 runs:
   using: composite
   steps:
@@ -77,6 +73,7 @@ runs:
 
   - name: Retrieve repository info
     id: repository-info
+    shell: bash
     run: |
       REPO_JSON=$(curl -s "${{github.api_url}}/repos/${{github.repository}}" -H "Authorization: token ${{github.token}}")
       DEFAULT_BRANCH=$(echo $REPO_JSON | jq -r '.default_branch')
