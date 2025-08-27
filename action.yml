@@ -83,6 +83,7 @@ runs:
       cat ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
 
   - name: Retrieve repository info
+    if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
     id: repository-info
     shell: bash
     run: |
