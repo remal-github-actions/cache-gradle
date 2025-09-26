@@ -2,6 +2,10 @@ name: Cache Gradle
 description: Improved cache for Gradle
 
 inputs:
+  gradle-user-home:
+    required: true
+    default: '~/.gradle'
+    description: "Gradle user home directory (GRADLE_USER_HOME)"
   cache-version:
     required: true
     default: '1'
@@ -42,7 +46,7 @@ runs:
   - name: Set environment variables
     shell: bash
     run: |
-      GRADLE_USER_HOME_ACTUAL=${{env.GRADLE_USER_HOME || '~/.gradle'}}
+      GRADLE_USER_HOME_ACTUAL="${{inputs.gradle-user-home}}"
       echo "GRADLE_USER_HOME_ACTUAL=$GRADLE_USER_HOME_ACTUAL" | tee -a $GITHUB_ENV
 
   - name: Cache Gradle wrapper
@@ -50,19 +54,21 @@ runs:
     uses: actions/cache@v4
     with:
       lookup-only: '${{inputs.lookup-only}}'
-      key: v${{inputs.cache-version}}-${{runner.os}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties')}}
+      key: v${{inputs.cache-version}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties')}}
       path: |
-        ${{env.GRADLE_USER_HOME_ACTUAL}}/wrapper/dists
+        ${{inputs.gradle-user-home}}/wrapper/dists
+      enableCrossOsArchive: true
   - name: Cache Gradle caches
     id: gradle-caches
     uses: actions/cache@v4
     with:
       lookup-only: '${{inputs.lookup-only}}'
-      key: v${{inputs.cache-version}}-${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}
+      key: v${{inputs.cache-version}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}
       path: |
-        ${{env.GRADLE_USER_HOME_ACTUAL}}/caches
-        ${{env.GRADLE_USER_HOME_ACTUAL}}/jdks
-        ${{env.GRADLE_USER_HOME_ACTUAL}}/notifications
+        ${{inputs.gradle-user-home}}/caches
+        ${{inputs.gradle-user-home}}/jdks
+        ${{inputs.gradle-user-home}}/notifications
+      enableCrossOsArchive: true
   - name: Cleanup Gradle wrapper cache
     if: ${{steps.gradle-wrapper.outputs.cache-hit != 'true' || steps.gradle-caches.outputs.cache-hit != 'true'}}
     uses: remal-github-actions/cache-gradle-cleanup-wrapper@v1
@@ -101,10 +107,11 @@ runs:
     uses: actions/cache@v4
     with:
       lookup-only: '${{inputs.lookup-only}}'
-      key: v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-${{github.sha}}-${{github.run_attempt}}
+      key: v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-${{github.sha}}-${{github.run_attempt}}
       restore-keys: |
-        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-${{github.sha}}-
-        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-
-        v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.default-branch}}-
+        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-${{github.sha}}-
+        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-
+        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.default-branch}}-
       path: |
-        ${{env.GRADLE_USER_HOME_ACTUAL}}/.build-cache
+        ${{inputs.gradle-user-home}}/.build-cache
+      enableCrossOsArchive: true
