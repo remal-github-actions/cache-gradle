@@ -82,15 +82,12 @@ runs:
       echo ${{env.GRADLE_USER_HOME_ACTUAL}}/gradle.properties
       cat ${{env.GRADLE_USER_HOME_ACTUAL}}/gradle.properties
 
-      echo "${{env.HOME}}"
-
-
       mkdir -p ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d
       cat <<EOF > ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
       gradle.settingsEvaluated { settings ->
         settings.buildCache {
           local {
-            directory = new File('${{env.GRADLE_USER_HOME_ACTUAL}}/.build-cache')//.replace('~/', '${{env.HOME}}'))
+            directory = new File('${{env.GRADLE_USER_HOME_ACTUAL}}/.build-cache'.replaceFirst('^~/', System.getProperty('user.home') + '/'))
           }
         }
       }
