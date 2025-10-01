@@ -79,9 +79,9 @@ runs:
     run: |
       mkdir -p ${{env.GRADLE_USER_HOME_ACTUAL}}
       echo "org.gradle.caching = true" >> ${{env.GRADLE_USER_HOME_ACTUAL}}/gradle.properties
-      echo ${{env.GRADLE_USER_HOME_ACTUAL}}/gradle.properties
+      echo ::group::${{env.GRADLE_USER_HOME_ACTUAL}}/gradle.properties
       cat ${{env.GRADLE_USER_HOME_ACTUAL}}/gradle.properties
-      echo ""
+      echo "::endgroup::"
 
       mkdir -p ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d
       cat <<EOF > ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
@@ -93,9 +93,9 @@ runs:
         }
       }
       EOF
-      echo ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
+      echo ::group::${{env.GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
       cat ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
-      echo ""
+      echo "::endgroup::"
 
   - name: Retrieve repository info
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
