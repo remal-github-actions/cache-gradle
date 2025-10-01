@@ -43,12 +43,6 @@ outputs:
 runs:
   using: composite
   steps:
-  - name: Set environment variables
-    shell: bash
-    run: |
-      GRADLE_USER_HOME_ACTUAL="${{inputs.gradle-user-home}}"
-      echo "GRADLE_USER_HOME_ACTUAL=$GRADLE_USER_HOME_ACTUAL" | tee -a $GITHUB_ENV
-
   - name: Cache Gradle wrapper
     id: gradle-wrapper
     uses: actions/cache@v4
@@ -77,24 +71,24 @@ runs:
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
     shell: bash
     run: |
-      mkdir -p ${{env.GRADLE_USER_HOME_ACTUAL}}
-      echo "org.gradle.caching = true" >> ${{env.GRADLE_USER_HOME_ACTUAL}}/gradle.properties
-      echo ::group::${{env.GRADLE_USER_HOME_ACTUAL}}/gradle.properties
-      cat ${{env.GRADLE_USER_HOME_ACTUAL}}/gradle.properties
+      mkdir -p ${{inputs.gradle-user-home}}
+      echo "org.gradle.caching = true" >> ${{inputs.gradle-user-home}}/gradle.properties
+      echo ::group::${{inputs.gradle-user-home}}/gradle.properties
+      cat ${{inputs.gradle-user-home}}/gradle.properties
       echo "::endgroup::"
 
-      mkdir -p ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d
-      cat <<EOF > ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
+      mkdir -p ${{inputs.gradle-user-home}}/init.d
+      cat <<EOF > ${{inputs.gradle-user-home}}/init.d/build-cache.gradle
       gradle.settingsEvaluated { settings ->
         settings.buildCache {
           local {
-            directory = new File('${{env.GRADLE_USER_HOME_ACTUAL}}/.build-cache'.replaceFirst('^~/', System.getProperty('user.home') + '/'))
+            directory = new File('${{inputs.gradle-user-home}}/.build-cache'.replaceFirst('^~/', System.getProperty('user.home') + '/'))
           }
         }
       }
       EOF
-      echo ::group::${{env.GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
-      cat ${{env.GRADLE_USER_HOME_ACTUAL}}/init.d/build-cache.gradle
+      echo ::group::${{inputs.gradle-user-home}}/init.d/build-cache.gradle
+      cat ${{inputs.gradle-user-home}}/init.d/build-cache.gradle
       echo "::endgroup::"
 
   - name: Retrieve repository info
