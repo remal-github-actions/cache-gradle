@@ -25,6 +25,10 @@ inputs:
     required: true
     default: 'false'
     description: "If true, only checks if cache entry exists and skips download. Does not change save cache behavior."
+  github-job:
+    required: true
+    default: '${{github.job}}'
+    description: "The current job ID"
   strategy-job-index:
     required: false
     description: "The index of the current job in the matrix"
@@ -104,11 +108,11 @@ runs:
     uses: actions/cache@v4
     with:
       lookup-only: '${{inputs.lookup-only}}'
-      key: v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-${{github.sha}}-${{github.run_attempt}}
+      key: v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-${{github.sha}}-${{github.run_attempt}}
       restore-keys: |
-        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-${{github.sha}}-
-        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-
-        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{github.job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.default-branch}}-
+        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-${{github.sha}}-
+        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-
+        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.default-branch}}-
       path: |
         ${{inputs.gradle-user-home}}/.build-cache
       enableCrossOsArchive: true
