@@ -95,6 +95,14 @@ runs:
       cat ${{inputs.gradle-user-home}}/init.d/build-cache.gradle
       echo "::endgroup::"
 
+  - name: Create Gradle Build Cache key
+    if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
+    id: build-cache-key-info
+    env:
+      BASE_KEY: v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}
+    run: |
+      $BASE_KEY="$(printf "%s" "$BASE_KEY" | tr -d '[:space:]')"
+      echo "base-key=$BASE_KEY" | tee -a $GITHUB_OUTPUT
   - name: Retrieve repository info
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
     id: repository-info
@@ -108,11 +116,11 @@ runs:
     uses: actions/cache@v4
     with:
       lookup-only: '${{inputs.lookup-only}}'
-      key: v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-${{github.sha}}-${{github.run_attempt}}
+      key: ${{steps.build-cache-key-info.outputs.base-key}}-${{github.ref}}-${{github.sha}}-${{github.run_attempt}}
       restore-keys: |
-        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-${{github.sha}}-
-        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-${{github.ref}}-
-        v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.default-branch}}-
+        ${{steps.build-cache-key-info.outputs.base-key}}-${{github.ref}}-${{github.sha}}-
+        ${{steps.build-cache-key-info.outputs.base-key}}-${{github.ref}}-
+        ${{steps.build-cache-key-info.outputs.base-key}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.default-branch}}-
       path: |
         ${{inputs.gradle-user-home}}/.build-cache
       enableCrossOsArchive: true
