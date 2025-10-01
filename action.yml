@@ -98,6 +98,7 @@ runs:
   - name: Create Gradle Build Cache key
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
     id: build-cache-key-info
+    shell: bash
     env:
       BASE_KEY: v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}
     run: |
