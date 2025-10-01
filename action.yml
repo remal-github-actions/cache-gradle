@@ -16,7 +16,7 @@ inputs:
     description: "Set to 'false' to disable Gradle Build Cache"
   build-cache-for-branches-only:
     required: true
-    default: 'false'
+    default: 'true'
     description: "Set to 'true' to disable Gradle Build Cache for tags"
   default-branch:
     required: false
