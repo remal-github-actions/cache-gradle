@@ -98,7 +98,7 @@ runs:
             buildCacheDirPath = System.getProperty('user.home') + buildCacheDirPath.substring(1)
           }
           File buildCacheDir = new File(buildCacheDirPath)
-          //println "buildCacheDir=" + buildCacheDir
+          println "buildCacheDir=" + buildCacheDir
           directory = buildCacheDir
         }
       }
