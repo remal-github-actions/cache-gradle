@@ -87,6 +87,7 @@ runs:
         settings.buildCache {
           local {
             directory = new File('${{inputs.gradle-user-home}}/.build-cache'.replaceFirst('^~/', System.getProperty('user.home') + '/'))
+            println "Build file cache directory: $directory"
           }
         }
       }
