@@ -58,7 +58,7 @@ runs:
         echo "GRADLE_USER_HOME=$GRADLE_USER_HOME" | tee -a $GITHUB_ENV
       fi
       if [ -z "$GRADLE_USER_HOME" ]; then
-        GRADLE_USER_HOME="~/."
+        GRADLE_USER_HOME="~/.gradle"
       fi
       echo "gradle-user-home=$GRADLE_USER_HOME" | tee -a $GITHUB_OUTPUT
       [[ "$GRADLE_USER_HOME" == "~" || "$GRADLE_USER_HOME" == ~/* ]] && GRADLE_USER_HOME_EXPANDED="${GRADLE_USER_HOME/#\~/$HOME}"
