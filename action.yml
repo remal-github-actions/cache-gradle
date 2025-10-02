@@ -84,12 +84,10 @@ runs:
       mkdir -p ${{inputs.gradle-user-home}}/init.d
       cat <<EOF > ${{inputs.gradle-user-home}}/init.d/build-cache.gradle
       gradle.settingsEvaluated { settings ->
-        settings.buildCache {
-          local {
-            File buildCacheDir = new File('${{inputs.gradle-user-home}}/.build-cache'.replaceFirst('^~/', System.getProperty('user.home') + '/'))
-            println "buildCacheDir=$buildCacheDir"
-            directory = buildCacheDir
-          }
+        settings.buildCache.local {
+          File buildCacheDir = new File('${{inputs.gradle-user-home}}/.build-cache'.replaceFirst('^~/', System.getProperty('user.home') + '/'))
+          println "buildCacheDir=" + buildCacheDir
+          directory = buildCacheDir
         }
       }
       EOF
