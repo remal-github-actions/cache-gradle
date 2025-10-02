@@ -2,10 +2,6 @@ name: Cache Gradle
 description: Improved cache for Gradle
 
 inputs:
-  gradle-user-home:
-    required: false
-    default: ${{env.GRADLE_USER_HOME || '~/.gradle'}}
-    description: "Gradle user home directory (GRADLE_USER_HOME)"
   cache-version:
     required: true
     default: '1'
@@ -47,6 +43,15 @@ outputs:
 runs:
   using: composite
   steps:
+  - name: Calculate paths
+    id: paths
+    shell: bash
+    run: |
+      if [ -z "$GRADLE_USER_HOME" ]; then
+        GRADLE_USER_HOME="~/.gradle"
+      fi
+      echo "gradle-user-home=$GRADLE_USER_HOME" | tee -a $GITHUB_OUTPUT
+
   - name: Cache Gradle wrapper
     id: gradle-wrapper
     uses: actions/cache@v4
@@ -54,7 +59,7 @@ runs:
       lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties')}}
       path: |
-        ${{inputs.gradle-user-home}}/wrapper/dists
+        ${{steps.paths.outputs.gradle-user-home}}/wrapper/dists
       enableCrossOsArchive: true
   - name: Cache Gradle caches
     id: gradle-caches
@@ -63,9 +68,9 @@ runs:
       lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}
       path: |
-        ${{inputs.gradle-user-home}}/caches
-        ${{inputs.gradle-user-home}}/jdks
-        ${{inputs.gradle-user-home}}/notifications
+        ${{steps.paths.outputs.gradle-user-home}}/caches
+        ${{steps.paths.outputs.gradle-user-home}}/jdks
+        ${{steps.paths.outputs.gradle-user-home}}/notifications
       enableCrossOsArchive: true
   - name: Cleanup Gradle wrapper cache
     if: ${{steps.gradle-wrapper.outputs.cache-hit != 'true' || steps.gradle-caches.outputs.cache-hit != 'true'}}
@@ -74,17 +79,17 @@ runs:
   - name: Setup Gradle Build Cache
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
     env:
-      BUILD_CACHE_DIR: ${{inputs.gradle-user-home}}/.build-cache
+      BUILD_CACHE_DIR: ${{steps.paths.outputs.gradle-user-home}}/.build-cache
     shell: bash
     run: |
-      mkdir -p ${{inputs.gradle-user-home}}
-      echo "org.gradle.caching = true" >> ${{inputs.gradle-user-home}}/gradle.properties
-      echo ::group::${{inputs.gradle-user-home}}/gradle.properties
-      cat ${{inputs.gradle-user-home}}/gradle.properties
+      mkdir -p ${{steps.paths.outputs.gradle-user-home}}
+      echo "org.gradle.caching = true" >> ${{steps.paths.outputs.gradle-user-home}}/gradle.properties
+      echo ::group::${{steps.paths.outputs.gradle-user-home}}/gradle.properties
+      cat ${{steps.paths.outputs.gradle-user-home}}/gradle.properties
       echo "::endgroup::"
 
-      mkdir -p ${{inputs.gradle-user-home}}/init.d
-      cat <<EOF > ${{inputs.gradle-user-home}}/init.d/build-cache.gradle
+      mkdir -p ${{steps.paths.outputs.gradle-user-home}}/init.d
+      cat <<EOF > ${{steps.paths.outputs.gradle-user-home}}/init.d/build-cache.gradle
       gradle.settingsEvaluated { settings ->
         settings.buildCache.local {
           String buildCacheDirPath = System.getenv('BUILD_CACHE_DIR')
@@ -93,13 +98,13 @@ runs:
             buildCacheDirPath = System.getProperty('user.home') + buildCacheDirPath.substring(1)
           }
           File buildCacheDir = new File(buildCacheDirPath)
-          println "buildCacheDir=" + buildCacheDir
+          //println "buildCacheDir=" + buildCacheDir
           directory = buildCacheDir
         }
       }
       EOF
-      echo ::group::${{inputs.gradle-user-home}}/init.d/build-cache.gradle
-      cat ${{inputs.gradle-user-home}}/init.d/build-cache.gradle
+      echo ::group::${{steps.paths.outputs.gradle-user-home}}/init.d/build-cache.gradle
+      cat ${{steps.paths.outputs.gradle-user-home}}/init.d/build-cache.gradle
       echo "::endgroup::"
 
   - name: Create Gradle Build Cache key
@@ -131,5 +136,5 @@ runs:
         ${{steps.build-cache-key-info.outputs.base-key}}-${{github.ref}}-
         ${{steps.build-cache-key-info.outputs.base-key}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.default-branch}}-
       path: |
-        ${{inputs.gradle-user-home}}/.build-cache
+        ${{steps.paths.outputs.gradle-user-home}}/.build-cache
       enableCrossOsArchive: true
