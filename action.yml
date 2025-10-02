@@ -91,7 +91,7 @@ runs:
   - name: Setup Gradle Build Cache
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
     env:
-      GRADLE_USER_HOME_EXPANDED: ${{steps.paths.outputs.gradle-user-home-expanded}}
+      BUILD_CACHE_DIR: ${{steps.paths.outputs.gradle-user-home-expanded}}/.build-cache
     shell: bash
     run: |
       mkdir -p ${{steps.paths.outputs.gradle-user-home}}
@@ -104,8 +104,8 @@ runs:
       cat <<EOF > ${{steps.paths.outputs.gradle-user-home}}/init.d/build-cache.gradle
       gradle.settingsEvaluated { settings ->
         settings.buildCache.local {
-          File buildCacheDir = new File(System.getenv('GRADLE_USER_HOME_EXPANDED') + '/.build-cache')
-          println "buildCacheDir=" + buildCacheDir
+          File buildCacheDir = new File(System.getenv('BUILD_CACHE_DIR'))
+          //println "buildCacheDir=" + buildCacheDir
           directory = buildCacheDir
         }
       }
