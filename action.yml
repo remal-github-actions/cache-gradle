@@ -57,21 +57,19 @@ runs:
     uses: actions/cache@v4
     with:
       lookup-only: '${{inputs.lookup-only}}'
-      key: v${{inputs.cache-version}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties')}}
+      key: v${{inputs.cache-version}}-${{runner.os}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties')}}
       path: |
         ${{steps.paths.outputs.gradle-user-home}}/wrapper/dists
-      enableCrossOsArchive: true
   - name: Cache Gradle caches
     id: gradle-caches
     uses: actions/cache@v4
     with:
       lookup-only: '${{inputs.lookup-only}}'
-      key: v${{inputs.cache-version}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}
+      key: v${{inputs.cache-version}}-${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}
       path: |
         ${{steps.paths.outputs.gradle-user-home}}/caches
         ${{steps.paths.outputs.gradle-user-home}}/jdks
         ${{steps.paths.outputs.gradle-user-home}}/notifications
-      enableCrossOsArchive: true
   - name: Cleanup Gradle wrapper cache
     if: ${{steps.gradle-wrapper.outputs.cache-hit != 'true' || steps.gradle-caches.outputs.cache-hit != 'true'}}
     uses: remal-github-actions/cache-gradle-cleanup-wrapper@v1
@@ -109,7 +107,7 @@ runs:
     id: build-cache-key-info
     shell: bash
     env:
-      BASE_KEY: v${{inputs.cache-version}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}
+      BASE_KEY: v${{inputs.cache-version}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}
     run: |
       BASE_KEY="$(printf "%s" "$BASE_KEY" | tr '{}[],;:\"'\''[:space:]' '-')"
       BASE_KEY="$(printf "%s" "$BASE_KEY" | tr -s '-')"
@@ -134,4 +132,3 @@ runs:
         ${{steps.build-cache-key-info.outputs.base-key}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.default-branch}}-
       path: |
         ${{steps.paths.outputs.gradle-user-home}}/.build-cache
-      enableCrossOsArchive: true
