@@ -90,6 +90,10 @@ runs:
 
       mkdir -p ${{steps.paths.outputs.gradle-user-home}}/init.d
       cat <<EOF > ${{steps.paths.outputs.gradle-user-home}}/init.d/build-cache.gradle
+      import org.gradle.util.GradleVersion
+      if (GradleVersion.current() < GradleVersion.version('4.0')) {
+        return
+      }
       gradle.settingsEvaluated { settings ->
         settings.buildCache.local {
           String buildCacheDirPath = '''${{steps.paths.outputs.gradle-user-home}}/.build-cache'''
