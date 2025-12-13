@@ -69,7 +69,7 @@ runs:
     uses: actions/cache@v4
     with:
       lookup-only: '${{inputs.lookup-only}}'
-      key: v${{inputs.cache-version}}-${{inputs.cache-scope && format('-{0}', inputs.cache-scope) || ''}}${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}
+      key: v${{inputs.cache-version}}${{inputs.cache-scope && format('-{0}', inputs.cache-scope) || ''}}-${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}
       path: |
         ${{steps.paths.outputs.gradle-user-home}}/caches
         ${{steps.paths.outputs.gradle-user-home}}/jdks
@@ -111,7 +111,7 @@ runs:
     id: build-cache-key-info
     shell: bash
     env:
-      BASE_KEY: v${{inputs.cache-version}}-${{inputs.cache-scope && format('-{0}', inputs.cache-scope) || ''}}${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}
+      BASE_KEY: v${{inputs.cache-version}}${{inputs.cache-scope && format('-{0}', inputs.cache-scope) || ''}}-${{runner.os}}-gradle-build-cache-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}-${{inputs.github-job}}-${{inputs.strategy-job-index||strategy.job-index||'0'}}/${{inputs.strategy-job-total||strategy.job-total||'0'}}
     run: |
       BASE_KEY="$(printf "%s" "$BASE_KEY" | tr '{}[],;:\"'\''[:space:]' '-')"
       BASE_KEY="$(printf "%s" "$BASE_KEY" | tr -s '-')"
