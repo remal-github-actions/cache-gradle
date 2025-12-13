@@ -1,0 +1,40 @@
+name: build
+
+on:
+  push:
+    branches:
+    - main
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    concurrency:
+      group: build-${{github.ref}}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - name: Create 'restore'
+      run: |
+        rm -rf restore
+        mkdir -p restore
+        cp action.yml restore/
+        sed -i 's|actions/cache|actions/cache/restore|g' restore/action.yml
+    - name: Create 'save'
+      run: |
+        rm -rf save
+        mkdir -p save
+        cp action.yml save/
+        sed -i 's|actions/cache|actions/cache/save|g' save/action.yml
+    - name: Push back
+      if: ${{github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')}}
+      uses: remal-github-actions/push-back@v2
+      with:
+        message: '[push-back] Push-back updated files during build'
+
