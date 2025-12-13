@@ -58,7 +58,7 @@ runs:
 
   - name: Cache Gradle wrapper
     id: gradle-wrapper
-    uses: actions/cache@v4
+    uses: actions/cache@v5
     with:
       lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}-${{runner.os}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties')}}
@@ -66,7 +66,7 @@ runs:
         ${{steps.paths.outputs.gradle-user-home}}/wrapper/dists
   - name: Cache Gradle caches
     id: gradle-caches
-    uses: actions/cache@v4
+    uses: actions/cache@v5
     with:
       lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}${{inputs.cache-scope && format('-{0}', inputs.cache-scope) || ''}}-${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}
@@ -130,7 +130,7 @@ runs:
       echo "default-branch=$DEFAULT_BRANCH" | tee -a $GITHUB_OUTPUT
   - name: Cache Gradle Build Cache for branch
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
-    uses: actions/cache@v4
+    uses: actions/cache@v5
     with:
       lookup-only: '${{inputs.lookup-only}}'
       key: ${{steps.build-cache-key-info.outputs.base-key}}-${{github.ref}}-${{github.sha}}-${{github.run_attempt}}
