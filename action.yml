@@ -1,6 +1,6 @@
 name: Cache Gradle
 description: Improved cache for Gradle
-version: 2
+version: 1
 
 inputs:
   cache-version:
