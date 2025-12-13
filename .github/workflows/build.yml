@@ -48,6 +48,10 @@ jobs:
       id: get-version
       run: |
         VERSION=$(yq '.version' action.yml)
+        if [[ "$VERSION" == "null" ]]; then
+          echo "::error::Couldn't read version from action.yml"
+          exit 1
+        fi
         echo "version=$VERSION" | tee -a $GITHUB_OUTPUT
 
     - name: Create tag
