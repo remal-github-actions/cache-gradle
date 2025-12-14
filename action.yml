@@ -65,6 +65,11 @@ runs:
       key: v${{inputs.cache-version}}-${{runner.os}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties')}}
       path: |
         ${{steps.paths.outputs.gradle-user-home}}/wrapper/dists
+
+  - name: Cleanup Gradle wrapper cache
+    if: ${{steps.gradle-wrapper.outputs.cache-hit != 'true' || steps.gradle-caches.outputs.cache-hit != 'true'}}
+    uses: remal-github-actions/cache-gradle-cleanup-wrapper@v1
+
   - name: Cache Gradle caches
     id: gradle-caches
     uses: actions/cache@v5
@@ -75,9 +80,6 @@ runs:
         ${{steps.paths.outputs.gradle-user-home}}/caches
         ${{steps.paths.outputs.gradle-user-home}}/jdks
         ${{steps.paths.outputs.gradle-user-home}}/notifications
-  - name: Cleanup Gradle wrapper cache
-    if: ${{steps.gradle-wrapper.outputs.cache-hit != 'true' || steps.gradle-caches.outputs.cache-hit != 'true'}}
-    uses: remal-github-actions/cache-gradle-cleanup-wrapper@v1
 
   - name: Setup Gradle Build Cache
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
@@ -88,7 +90,6 @@ runs:
       echo ::group::${{steps.paths.outputs.gradle-user-home}}/gradle.properties
       cat ${{steps.paths.outputs.gradle-user-home}}/gradle.properties
       echo "::endgroup::"
-
       mkdir -p ${{steps.paths.outputs.gradle-user-home}}/init.d
       cat <<EOF > ${{steps.paths.outputs.gradle-user-home}}/init.d/build-cache.gradle
       import org.gradle.util.GradleVersion
@@ -121,23 +122,15 @@ runs:
       BASE_KEY="$(printf "%s" "$BASE_KEY" | tr '{}[],;:\"'\''[:space:]' '-')"
       BASE_KEY="$(printf "%s" "$BASE_KEY" | tr -s '-')"
       echo "base-key=$BASE_KEY" | tee -a $GITHUB_OUTPUT
-  - name: Retrieve repository info
-    if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
-    id: repository-info
-    shell: bash
-    run: |
-      REPO_JSON=$(curl -s "${{github.api_url}}/repos/${{github.repository}}" -H "Authorization: token ${{github.token}}")
-      DEFAULT_BRANCH=$(echo $REPO_JSON | jq -r '.default_branch')
-      echo "default-branch=$DEFAULT_BRANCH" | tee -a $GITHUB_OUTPUT
+
   - name: Cache Gradle Build Cache for branch
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
     uses: actions/cache@v5
     with:
       lookup-only: '${{inputs.lookup-only}}'
-      key: ${{steps.build-cache-key-info.outputs.base-key}}-${{github.ref}}-${{github.sha}}-${{github.run_attempt}}
+      key: ${{steps.build-cache-key-info.outputs.base-key}}-refs/heads/${{github.base_ref && github.base_ref || github.ref_name}}-${{github.sha}}-${{github.run_attempt}}
       restore-keys: |
-        ${{steps.build-cache-key-info.outputs.base-key}}-${{github.ref}}-${{github.sha}}-
-        ${{steps.build-cache-key-info.outputs.base-key}}-${{github.ref}}-
-        ${{steps.build-cache-key-info.outputs.base-key}}-refs/heads/${{github.base_ref && github.base_ref || steps.repository-info.outputs.default-branch}}-
+        ${{steps.build-cache-key-info.outputs.base-key}}-refs/heads/${{github.base_ref && github.base_ref || github.ref_name}}-${{github.sha}}-
+        ${{steps.build-cache-key-info.outputs.base-key}}-refs/heads/${{github.base_ref && github.base_ref || github.ref_name}}-
       path: |
         ${{steps.paths.outputs.gradle-user-home}}/.build-cache
