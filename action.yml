@@ -66,10 +66,6 @@ runs:
       path: |
         ${{steps.paths.outputs.gradle-user-home}}/wrapper/dists
 
-  - name: Cleanup Gradle wrapper cache
-    if: ${{steps.gradle-wrapper.outputs.cache-hit != 'true' || steps.gradle-caches.outputs.cache-hit != 'true'}}
-    uses: remal-github-actions/cache-gradle-cleanup-wrapper@v1
-
   - name: Cache Gradle caches
     id: gradle-caches
     uses: actions/cache@v5
@@ -80,6 +76,10 @@ runs:
         ${{steps.paths.outputs.gradle-user-home}}/caches
         ${{steps.paths.outputs.gradle-user-home}}/jdks
         ${{steps.paths.outputs.gradle-user-home}}/notifications
+
+  - name: Cleanup Gradle wrapper cache
+    if: ${{steps.gradle-wrapper.outputs.cache-hit != 'true' || steps.gradle-caches.outputs.cache-hit != 'true'}}
+    uses: remal-github-actions/cache-gradle-cleanup-wrapper@v1
 
   - name: Setup Gradle Build Cache
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
