@@ -59,7 +59,7 @@ runs:
 
   - name: Cache Gradle wrapper
     id: gradle-wrapper
-    uses: actions/cache@v5
+    uses: actions/cache@v6
     with:
       lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}-${{runner.os}}-gradle-wrapper-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties')}}
@@ -68,7 +68,7 @@ runs:
 
   - name: Cache Gradle caches
     id: gradle-caches
-    uses: actions/cache@v5
+    uses: actions/cache@v6
     with:
       lookup-only: '${{inputs.lookup-only}}'
       key: v${{inputs.cache-version}}${{inputs.cache-scope && format('-{0}', inputs.cache-scope) || ''}}-${{runner.os}}-gradle-caches-${{hashFiles('**/gradle/wrapper/gradle-wrapper.properties', '**/gradle/gradle-daemon-jvm.properties', '**/*.gradle', '**/*.gradle.kts', '**/gradle.properties', '**/gradle.lockfile', '**/*-gradle.lockfile' , '**/gradle/*.versions.toml')}}
@@ -125,7 +125,7 @@ runs:
 
   - name: Cache Gradle Build Cache for branch
     if: ${{inputs.build-cache-enabled == 'true' && (inputs.build-cache-for-branches-only == 'false' || github.ref_type == 'branch')}}
-    uses: actions/cache@v5
+    uses: actions/cache@v6
     with:
       lookup-only: '${{inputs.lookup-only}}'
       key: ${{steps.build-cache-key-info.outputs.base-key}}-refs/heads/${{github.base_ref && github.base_ref || github.ref_name}}-${{github.sha}}-${{github.run_attempt}}
